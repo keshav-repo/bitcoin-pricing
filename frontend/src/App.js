@@ -1,7 +1,7 @@
 import './App.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import BitcoinPriceGraph from './component/BitcoinPriceGraph';
 
@@ -10,16 +10,13 @@ function App() {
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [currency, setCurrencyOption] = useState('');
+  const [availableCurr, setAvailableCurr] = useState([]);
   const options = ['USD', 'INR', 'Option 3'];
   const [resData, setResData] = useState(null);
 
-  console.log('host is');
-  console.log(process.env);
-  console.log(process.env.REACT_APP_API_HOST);
-  const host = process.env.REACT_APP_API_HOST || 'http://localhost';
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const host = process.env.REACT_APP_API_HOST || 'http://localhost:3000';
 
+  const fetchPriceStates = () => {
     var parsedStartDate = moment(startDate);
     parsedStartDate = parsedStartDate.format('YYYY-MM-DD')
     var parsedEndDate = moment(endDate);
@@ -41,8 +38,32 @@ function App() {
       .catch(error => {
         console.error('Error occurred:', error);
       });
+  }
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    fetchPriceStates();
   };
+
+  useEffect(() => {
+    // fetch currency available
+    const url = `${host}/api/bitcoin/currency`;
+    fetch(url)
+      .then(response => response.json())
+      .then(currencies => {
+        var currList = [];
+        currencies.map(obj => {
+          currList.push(obj['currency']);
+        })
+        setAvailableCurr(currList);
+        console.log(currList);
+      })
+      .catch(error => console.error('Error fetching currency:', error));
+  }, []);
+
+  useEffect(() => {
+    fetchPriceStates();
+  }, [currency])
 
   return (
     <div className="container mt-5">
@@ -77,7 +98,7 @@ function App() {
                 value={currency}
                 onChange={(e) => setCurrencyOption(e.target.value)}>
                 <option value="">Select an option</option>
-                {options.map((option, index) => (
+                {availableCurr.map((option, index) => (
                   <option key={index} value={option}>
                     {option}
                   </option>
@@ -96,8 +117,8 @@ function App() {
       </form>
       <>
         <h1>Stock Price Analysis</h1>
-        {resData && resData.stats.map(res=>(
-            <p>{res['query']} : {currency}  {res['value']}</p>
+        {resData && resData.stats.map(res => (
+          <p>{res['query']} : {currency}  {res['value']}</p>
         ))}
       </>
       {

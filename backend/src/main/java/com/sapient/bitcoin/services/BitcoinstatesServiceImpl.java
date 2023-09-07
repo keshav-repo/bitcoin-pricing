@@ -20,8 +20,8 @@ public class BitcoinstatesServiceImpl implements BitcoinstatesService {
     public BitcoinPriceStats getStates(String start, String end, String curr) {
         curr = !StringUtils.hasText(curr) ? "USD" : curr;
         HistoricalDataResponse historicalDataResponse = bitCoinApiService.pricesHistory(start, end, curr);
-        Stats highestPriceStats = new Stats("highest-price", Double.MIN_VALUE);
-        Stats lowestPriceStats = new Stats("lowest-price", Double.MAX_VALUE);
+        Stats highestPriceStats = new Stats("Highest price", Double.MIN_VALUE);
+        Stats lowestPriceStats = new Stats("Lowest price", Double.MAX_VALUE);
         if (!Objects.isNull(historicalDataResponse.getBpi())) {
             for (Map.Entry<String, Double> datePrice : historicalDataResponse.getBpi().entrySet()) {
                 if (highestPriceStats.getValue() < datePrice.getValue()) {
