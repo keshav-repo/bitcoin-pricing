@@ -13,7 +13,10 @@ function App() {
   const options = ['USD', 'INR', 'Option 3'];
   const [resData, setResData] = useState(null);
 
-  const host = 'http://localhost';
+  console.log('host is');
+  console.log(process.env);
+  console.log(process.env.REACT_APP_API_HOST);
+  const host = process.env.REACT_APP_API_HOST || 'http://localhost';
   const handleSubmit = (e) => {
     e.preventDefault();
 
