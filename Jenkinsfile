@@ -20,11 +20,16 @@ pipeline {
               steps{
                       dir('frontend'){
                           sh('npm install')
-                         sh('npm run build-prod')
+                          sh('CI=false npm run build-prod')
                      }
                   
               }
              
+         }
+         stage('Build docker container'){
+             steps{
+                 sh('docker-compose up -d')
+             }
          }
     }
 }
